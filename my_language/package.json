@@ -1,0 +1,60 @@
+{
+  "name": "gravox",
+  "displayName": "Gravox Language",
+  "version": "1.0.0",
+  "description": "My first programming language",
+  "publisher": "Gravox",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gravox/gravox"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "main": "index.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "gravox",
+        "aliases": [
+          "Gravox",
+          "gravox"
+        ],
+        "extensions": [
+          ".gvx"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./assets/GravoxLogo.png",
+          "dark": "./assets/GravoxLogo.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "gravox",
+        "scopeName": "source.gravox",
+        "path": "./syntaxes/gravox.tmLanguage.json"
+      }
+    ]
+  },
+  "bin": {
+    "gravox": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "pkg": {
+    "assets": [
+      "assets/**/*",
+      "syntaxes/**/*"
+    ],
+    "outputPath": "dist"
+  }
+}

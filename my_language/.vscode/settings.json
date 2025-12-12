@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "*.gvx": "gravox"
+    },
+    "code-runner.executorMap": {
+        "gravox": "gravox run"
+    },
+    "code-runner.executorMapByFileExtension": {
+        ".gvx": "gravox run"
+    }
+}

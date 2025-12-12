@@ -1,0 +1,2 @@
+any[] mixed = [1, "Two", true];
+show(mixed); // Expected: [1, "Two", true]

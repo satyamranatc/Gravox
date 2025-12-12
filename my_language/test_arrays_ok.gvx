@@ -1,0 +1,5 @@
+int[] numbers = [1, 2, 3];
+show(numbers); // Expected: [1, 2, 3]
+
+string[] names = ["Alice", "Bob"];
+show("hello",names); // Expected: ["Alice", "Bob"]

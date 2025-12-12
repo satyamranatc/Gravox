@@ -1,0 +1,90 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "Gravox",
+    "patterns": [
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#types"
+        },
+        {
+            "include": "#strings"
+        },
+        {
+            "include": "#support"
+        },
+        {
+            "include": "#constants"
+        }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.double-slash.gravox",
+                    "match": "//.*$"
+                }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.gravox",
+                    "match": "\\b(if|else|while|for|return|in|range)\\b"
+                },
+                {
+                    "name": "keyword.other.gravox",
+                    "match": "\\b(break|continue)\\b"
+                }
+            ]
+        },
+        "types": {
+            "patterns": [
+                {
+                    "name": "storage.type.gravox",
+                    "match": "\\b(int|float|string|bool|void|any)\\b"
+                }
+            ]
+        },
+        "strings": {
+            "name": "string.quoted.double.gravox",
+            "begin": "\"",
+            "end": "\"",
+            "patterns": [
+                {
+                    "name": "constant.character.escape.gravox",
+                    "match": "\\\\."
+                },
+                {
+                    "name": "variable.other.interpolation.gravox",
+                    "match": "\\{\\{[a-zA-Z_]\\w*\\}\\}"
+                }
+            ]
+        },
+        "support": {
+            "patterns": [
+                {
+                    "name": "support.function.gravox",
+                    "match": "\\b(show)\\b"
+                }
+            ]
+        },
+        "constants": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.gravox",
+                    "match": "\\b\\d+(\\.\\d+)?\\b"
+                },
+                {
+                    "name": "constant.language.boolean.gravox",
+                    "match": "\\b(true|false)\\b"
+                }
+            ]
+        }
+    },
+    "scopeName": "source.gravox"
+}

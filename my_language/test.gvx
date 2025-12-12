@@ -1,0 +1,48 @@
+// --- Gravox Feature Showcase ---
+
+// 1. Data Types & Variables
+int number = 42;
+float pi = 3.14159;
+string langName = "Gravox";
+bool isAwesome = true;
+
+show("--- Variables ---");
+show(number);
+show(pi);
+show(langName);
+show(isAwesome);
+
+// 2. Control Flow: If / Else
+show("--- If / Else ---");
+if (number > 40) {
+    show("Number is greater than 40");
+} else {
+    show("Number is small");
+}
+
+// 3. Control Flow: While Loop
+show("--- While Loop ---");
+int counter = 0;
+while (counter < 3) {
+    show(counter);
+    counter = counter + 1;
+}
+
+// 4. Control Flow: For Loop (Range)
+show("--- For Loop ---");
+for (i in range(1, 4)) {
+    show(i);
+}
+
+// 5. Scoping
+show("--- Scope Shadowing ---");
+int globalVar = 100;
+{
+    int globalVar = 200; // Shadows the outer variable
+    show("Inner Scope: " + globalVar);
+}
+show("Outer Scope: " + globalVar);
+
+
+int a = [1,2,3,4,5];
+show(a);

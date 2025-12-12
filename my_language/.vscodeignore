@@ -1,0 +1,12 @@
+# Exclude executables and build artifacts
+dist/
+*.vsix
+
+# Exclude test files
+test*.gvx
+demo.gvx
+debug_lexer.js
+
+# Exclude development files
+.vscode/
+PROJECT_DETAILS.md
