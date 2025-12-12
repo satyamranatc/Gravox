@@ -45,7 +45,12 @@
     "gravox": "./index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "pkg .",
+    "build:mac": "pkg . --targets node18-macos-x64",
+    "build:linux": "pkg . --targets node18-linux-x64",
+    "build:win": "pkg . --targets node18-win-x64",
+    "build:all": "pkg ."
   },
   "keywords": [],
   "author": "",
@@ -55,6 +60,11 @@
       "assets/**/*",
       "syntaxes/**/*"
     ],
-    "outputPath": "dist"
+    "outputPath": "dist",
+    "targets": [
+      "node18-macos-x64",
+      "node18-linux-x64",
+      "node18-win-x64"
+    ]
   }
 }
