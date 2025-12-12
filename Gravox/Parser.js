@@ -46,6 +46,21 @@ class Parser {
     }
 
     declaration() {
+        // Import Statement: import { items } from "file.gvx"
+        if (this.check('KEYWORD') && this.peek().value === 'import') {
+            return this.importStatement();
+        }
+        
+        // Function Declaration: action name(...) { }
+        if (this.check('KEYWORD') && this.peek().value === 'action') {
+            return this.actionDeclaration();
+        }
+        
+        // Alias Statement: use funcName as newName
+        if (this.check('KEYWORD') && this.peek().value === 'use') {
+            return this.aliasStatement();
+        }
+        
         // Variable Declaration: int x... OR int[] x...
         let isType = this.check('TYPE');
         if (isType) {
@@ -88,6 +103,89 @@ class Parser {
         return { type: 'VarDeclaration', varType: typename, name: name.value, initializer };
     }
 
+    actionDeclaration() {
+        this.advance(); // consume 'action'
+        let name = this.consume('IDENTIFIER', "Expect function name.");
+        this.consume('LPAREN', "Expect '(' after function name.");
+        let params = [];
+        if (!this.check('RPAREN')) {
+            do {
+                let type = this.consume('TYPE', "Expect parameter type.");
+                let paramName = this.consume('IDENTIFIER', "Expect parameter name.");
+                let defaultValue = null;
+                // Check for default parameter: param = value
+                if (this.match('ASSIGN')) {
+                    defaultValue = this.expression();
+                }
+                params.push({ type: type.value, name: paramName.value, defaultValue });
+            } while (this.match('COMMA'));
+        }
+        this.consume('RPAREN', "Expect ')' after parameters.");
+        let body = this.block();
+        return { type: 'ActionDeclaration', name: name.value, params, body };
+    }
+
+    aliasStatement() {
+        this.advance(); // consume 'use'
+        let originalName = this.consume('IDENTIFIER', "Expect function name after 'use'.");
+        if (this.match('KEYWORD') && this.tokens[this.current - 1].value === 'as') {
+            // Correctly consumed 'as'
+        } else {
+            throw new Error("Expect 'as' after function name.");
+        }
+        let aliasName = this.consume('IDENTIFIER', "Expect alias name after 'as'.");
+        this.consume('SEMICOLON', "Expect ';' after alias statement.");
+        return { type: 'AliasStatement', originalName: originalName.value, aliasName: aliasName.value };
+    }
+
+    importStatement() {
+        this.advance(); // consume 'import'
+        
+        let imports = [];
+        let source = null;
+        
+        // Check for named imports: import { ... } from "file"
+        if (this.match('LBRACE')) {
+            if (!this.check('RBRACE')) {
+                do {
+                    let itemName = this.consume('IDENTIFIER', "Expect import item name.");
+                    let alias = null;
+                    
+                    // Check for renaming: item as newName
+                    if (this.match('KEYWORD') && this.tokens[this.current - 1].value === 'as') {
+                        alias = this.consume('IDENTIFIER', "Expect alias name after 'as'.");
+                    }
+                    
+                    imports.push({
+                        name: itemName.value,
+                        alias: alias ? alias.value : null
+                    });
+                } while (this.match('COMMA'));
+            }
+            this.consume('RBRACE', "Expect '}' after import items.");
+            
+            // Expect 'from'
+            if (this.match('KEYWORD') && this.tokens[this.current - 1].value === 'from') {
+                // Correctly consumed 'from'
+            } else {
+                throw new Error("Expect 'from' after import items.");
+            }
+            
+            source = this.consume('STRING', "Expect file path after 'from'.");
+        } else {
+            // Simple import: import "file"
+            source = this.consume('STRING', "Expect file path.");
+        }
+        
+        this.consume('SEMICOLON', "Expect ';' after import statement.");
+        
+        return {
+            type: 'ImportStatement',
+            imports: imports.length > 0 ? imports : null,
+            source: source.value
+        };
+    }
+
     functionDeclaration() {
         let retType = this.advance();
         let name = this.consume('IDENTIFIER', "Expect function name.");
@@ -112,11 +210,22 @@ class Parser {
             if (keyword === 'while') return this.whileStatement();
             if (keyword === 'for') return this.forStatement();
             if (keyword === 'show') return this.showStatement();
-            // TODO: return, etc.
+            if (keyword === 'return') return this.returnStatement();
         }
         if (this.check('LBRACE')) return this.block();
 
         return this.expressionStatement();
+    }
+
+    returnStatement() {
+        let values = [];
+        if (!this.check('SEMICOLON')) {
+            do {
+                values.push(this.expression());
+            } while (this.match('COMMA'));
+        }
+        this.consume('SEMICOLON', "Expect ';' after return statement.");
+        return { type: 'ReturnStatement', values };
     }
 
     ifStatement() {
@@ -247,7 +356,7 @@ class Parser {
 
     factor() {
         let expr = this.unary();
-        while (this.match('MULTIPLY', 'DIVIDE')) {
+        while (this.match('MULTIPLY', 'DIVIDE', 'MODULO')) {
             let operator = this.tokens[this.current - 1].value;
             let right = this.unary();
             expr = { type: 'Binary', left: expr, operator, right };
@@ -268,7 +377,29 @@ class Parser {
         if (this.match('NUMBER')) return { type: 'Literal', value: parseFloat(this.tokens[this.current - 1].value) };
         if (this.match('STRING')) return { type: 'Literal', value: this.tokens[this.current - 1].value };
         if (this.match('BOOLEAN')) return { type: 'Literal', value: this.tokens[this.current - 1].value === 'true' };
-        if (this.match('IDENTIFIER')) return { type: 'Variable', name: this.tokens[this.current - 1].value };
+        if (this.match('IDENTIFIER')) {
+            let name = this.tokens[this.current - 1].value;
+            // Check for function call: func(args)
+            if (this.check('LPAREN')) {
+                this.advance(); // consume '('
+                let args = [];
+                if (!this.check('RPAREN')) {
+                    do {
+                        args.push(this.expression());
+                    } while (this.match('COMMA'));
+                }
+                this.consume('RPAREN', "Expect ')' after arguments.");
+                return { type: 'FunctionCall', name: name, args };
+            }
+            // Check for array access: arr[index]
+            if (this.check('LBRACKET')) {
+                this.advance(); // consume '['
+                let index = this.expression();
+                this.consume('RBRACKET', "Expect ']' after array index.");
+                return { type: 'ArrayAccess', name: name, index: index };
+            }
+            return { type: 'Variable', name: name };
+        }
         if (this.match('LPAREN')) {
             let expr = this.expression();
             this.consume('RPAREN', "Expect ')' after expression.");

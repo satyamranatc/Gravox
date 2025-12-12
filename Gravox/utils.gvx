@@ -1,0 +1,15 @@
+// utils.gvx - Example module for testing imports
+
+action add(int a, int b) {
+    return a + b;
+}
+
+action multiply(int x, int y) {
+    return x * y;
+}
+
+action greet(string name) {
+    show("Hello from utils.gvx, {{name}}!");
+}
+
+int magicNumber = 42;

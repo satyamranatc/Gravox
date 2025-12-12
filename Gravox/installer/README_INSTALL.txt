@@ -1,19 +1,56 @@
-# How to Install Gravox
+GRAVOX INSTALLATION INSTRUCTIONS
+=================================
 
-Thank you for downloading Gravox!
+IMPORTANT: Gravox has TWO separate components:
 
-## MacOS
-1. Open the "Gravox Installer" volume.
-2. Double-click `install.sh`. 
-   - Note: You might need to right-click and select Open depending on security settings.
-   - Alternatively, open Terminal, drag `install.sh` into it, and press Enter.
+1. COMPILER (Required)
+   - Runs your .gvx programs
+   - Install location: /usr/local/bin/gravox (Mac/Linux)
+   
+2. VS CODE EXTENSION (Optional)
+   - Syntax highlighting and file icons
+   - Install via VS Code Extensions panel
 
-## Linux
-1. Extract the `gravox-linux.tar.gz` archive.
-2. Open a terminal in the extracted folder.
-3. Run `./install.sh`.
+---
 
-## Windows
-1. Extract the `gravox-win.zip` folder.
-2. Right-click `install.bat` and select "Run as Administrator" (optional, but recommended for system-wide install).
-3. Follow the on-screen prompts.
+INSTALLATION STEPS:
+
+macOS:
+  1. Run: ./install.sh
+  2. Enter your password when prompted
+  3. Verify: gravox --version
+
+Linux:
+  1. Run: sudo ./install.sh
+  2. Verify: gravox --version
+
+Windows:
+  1. Run: install.bat (as Administrator)
+  2. Verify: gravox --version
+
+VS Code Extension (All Platforms):
+  1. Open VS Code
+  2. Extensions panel (Cmd+Shift+X or Ctrl+Shift+X)
+  3. Click "..." → Install from VSIX
+  4. Select gravox-1.0.0.vsix
+
+---
+
+TESTING:
+
+Run the test file:
+  gravox run test.gvx
+
+You should see output demonstrating all Gravox features.
+
+---
+
+NEW FEATURES:
+✓ Array indexing: arr[0]
+✓ Functions: action add(int a, int b)
+✓ Default parameters
+✓ Multiple return values
+✓ Function aliasing: use add as plus
+✓ Modulo operator: %
+
+For more information, visit: https://github.com/satyamranatc/Gravox

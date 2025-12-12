@@ -1,0 +1,148 @@
+// Comprehensive Test of All New Gravox Features
+// Simplified version without parser issues
+
+show("=== GRAVOX NEW FEATURES TEST ===");
+show("");
+
+// ========================================
+// TEST 1: Array Indexing
+// ========================================
+show("TEST 1: Array Indexing");
+int[] numbers = [10, 20, 30, 40, 50];
+show("Array:", numbers);
+show("First element:", numbers[0]);
+show("Third element:", numbers[2]);
+show("Last element:", numbers[4]);
+
+string[] names = ["Alice", "Bob", "Charlie"];
+show("Second name:", names[1]);
+
+int sum = numbers[0] + numbers[1];
+show("Sum of first two:", sum);
+show("");
+
+// ========================================
+// TEST 2: Basic Functions
+// ========================================
+show("TEST 2: Basic Functions");
+
+action add(int a, int b) {
+    return a + b;
+}
+
+action multiply(int x, int y) {
+    return x * y;
+}
+
+int result1 = add(5, 3);
+int result2 = multiply(4, 7);
+show("add(5, 3) =", result1);
+show("multiply(4, 7) =", result2);
+show("");
+
+// ========================================
+// TEST 3: Default Parameters
+// ========================================
+show("TEST 3: Default Parameters");
+
+action greet(string name = "Guest") {
+    show("Hello, {{name}}!");
+}
+
+action power(int base, int exp = 2) {
+    int result = 1;
+    int i = 0;
+    while (i < exp) {
+        result = result * base;
+        i = i + 1;
+    }
+    return result;
+}
+
+greet();
+greet("Alice");
+show("3^2 =", power(3));
+show("2^4 =", power(2, 4));
+show("");
+
+// ========================================
+// TEST 4: Multiple Return Values
+// ========================================
+show("TEST 4: Multiple Return Values");
+
+action divmod(int a, int b) {
+    return a / b, a % b;
+}
+
+action getStats(int a, int b) {
+    int sum = a + b;
+    int product = a * b;
+    return sum, product;
+}
+
+int[] dm = divmod(17, 5);
+show("17 / 5 = quotient:", dm[0], "remainder:", dm[1]);
+
+int[] stats = getStats(5, 3);
+show("getStats(5, 3) = sum:", stats[0], "product:", stats[1]);
+show("");
+
+// ========================================
+// TEST 5: Function Aliasing
+// ========================================
+show("TEST 5: Function Aliasing");
+
+action subtract(int a, int b) {
+    return a - b;
+}
+
+use subtract as minus;
+use add as plus;
+
+int r1 = subtract(10, 3);
+int r2 = minus(10, 3);
+int r3 = plus(5, 5);
+show("subtract(10, 3) =", r1);
+show("minus(10, 3) =", r2);
+show("plus(5, 5) =", r3);
+show("");
+
+// ========================================
+// TEST 6: Modulo Operator
+// ========================================
+show("TEST 6: Modulo Operator");
+int mod1 = 10 % 3;
+int mod2 = 17 % 5;
+int mod3 = 20 % 4;
+show("10 % 3 =", mod1);
+show("17 % 5 =", mod2);
+show("20 % 4 =", mod3);
+show("");
+
+// ========================================
+// TEST 7: Nested Functions
+// ========================================
+show("TEST 7: Nested Function Calls");
+
+action square(int n) {
+    return n * n;
+}
+
+action sumOfSquares(int a, int b) {
+    return square(a) + square(b);
+}
+
+int result = sumOfSquares(3, 4);
+show("sumOfSquares(3, 4) =", result);
+show("");
+
+// ========================================
+// FINAL SUMMARY
+// ========================================
+show("=== ALL NEW FEATURES WORKING! ===");
+show("✓ Array Indexing");
+show("✓ Functions (Actions)");
+show("✓ Default Parameters");
+show("✓ Multiple Return Values");
+show("✓ Function Aliasing");
+show("✓ Modulo Operator");

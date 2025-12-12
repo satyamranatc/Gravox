@@ -31,9 +31,18 @@ class Environment {
     }
 }
 
+class ReturnException {
+    constructor(values) {
+        this.values = values;
+    }
+}
+
 class Interpreter {
     constructor() {
         this.environment = new Environment();
+        this.fs = require('fs');
+        this.path = require('path');
+        this.currentDir = process.cwd();
     }
 
     interpret(ast) {
@@ -42,7 +51,11 @@ class Interpreter {
                 this.execute(statement);
             }
         } catch (error) {
-            console.error("Runtime Error:", error.message);
+            if (error instanceof ReturnException) {
+                console.error("Runtime Error: Return statement outside of function.");
+            } else {
+                console.error("Runtime Error:", error.message);
+            }
         }
     }
 
@@ -102,8 +115,109 @@ class Interpreter {
             case 'ExpressionStatement':
                 this.evaluate(stmt.expression);
                 break;
+            case 'ActionDeclaration':
+                // Store function in environment
+                this.environment.define(stmt.name, {
+                    type: 'function',
+                    params: stmt.params,
+                    body: stmt.body
+                });
+                break;
+            case 'AliasStatement':
+                // Create alias for function
+                let originalFunc = this.environment.get(stmt.originalName);
+                this.environment.define(stmt.aliasName, originalFunc);
+                break;
+            case 'ReturnStatement':
+                // Evaluate all return values
+                let returnValues = stmt.values.map(v => this.evaluate(v));
+                // If multiple values, return as array; if single, return value; if none, return null
+                if (returnValues.length > 1) {
+                    throw new ReturnException(returnValues);
+                } else if (returnValues.length === 1) {
+                    throw new ReturnException([returnValues[0]]);
+                } else {
+                    throw new ReturnException([null]);
+                }
+            case 'ImportStatement':
+                this.executeImport(stmt);
+                break;
             default:
                 throw new Error(`Unknown statement type: ${stmt.type}`);
+        }
+    }
+
+    executeImport(stmt) {
+        const source = stmt.source;
+        let exports = {};
+        
+        // Check if it's a standard library
+        if (source.startsWith('std:')) {
+            const libName = source.substring(4); // Remove 'std:' prefix
+            const libPath = this.path.join(__dirname, 'stdlib', `${libName}.js`);
+            
+            if (!this.fs.existsSync(libPath)) {
+                throw new Error(`Standard library '${libName}' not found.`);
+            }
+            
+            // Load standard library
+            delete require.cache[require.resolve(libPath)];
+            exports = require(libPath);
+        } else {
+            // Load user file
+            const filePath = this.path.resolve(this.currentDir, source);
+            
+            if (!this.fs.existsSync(filePath)) {
+                throw new Error(`File '${source}' not found.`);
+            }
+            
+            // Read and parse the file
+            const Lexer = require('./Lexer');
+            const Parser = require('./Parser');
+            
+            const code = this.fs.readFileSync(filePath, 'utf-8');
+            const lexer = new Lexer(code);
+            const tokens = lexer.tokenize();
+            const parser = new Parser(tokens);
+            const ast = parser.parse();
+            
+            // Execute in isolated environment to collect exports
+            const importEnv = new Environment(this.environment);
+            const previous = this.environment;
+            this.environment = importEnv;
+            
+            try {
+                for (let statement of ast.body) {
+                    this.execute(statement);
+                }
+            } finally {
+                this.environment = previous;
+            }
+            
+            // Collect all defined items as exports
+            for (let [key, value] of importEnv.values) {
+                exports[key] = value;
+            }
+        }
+        
+        // Import items into current environment
+        if (stmt.imports) {
+            // Named imports
+            for (let item of stmt.imports) {
+                const name = item.name;
+                const alias = item.alias || name;
+                
+                if (!(name in exports)) {
+                    throw new Error(`'${name}' is not exported from '${source}'.`);
+                }
+                
+                this.environment.define(alias, exports[name]);
+            }
+        } else {
+            // Import all
+            for (let [key, value] of Object.entries(exports)) {
+                this.environment.define(key, value);
+            }
         }
     }
 
@@ -127,6 +241,68 @@ class Interpreter {
                 return expr.elements.map(e => this.evaluate(e));
             case 'Variable':
                 return this.environment.get(expr.name);
+            case 'ArrayAccess':
+                let array = this.environment.get(expr.name);
+                if (!Array.isArray(array)) {
+                    throw new Error(`'${expr.name}' is not an array.`);
+                }
+                let index = this.evaluate(expr.index);
+                if (typeof index !== 'number' || index < 0 || index >= array.length) {
+                    throw new Error(`Array index out of bounds: ${index} (array length: ${array.length})`);
+                }
+                return array[Math.floor(index)];
+            case 'FunctionCall':
+                let func = this.environment.get(expr.name);
+                if (!func || func.type !== 'function') {
+                    throw new Error(`'${expr.name}' is not a function.`);
+                }
+                
+                // Evaluate arguments
+                let evaluatedArgs = expr.args.map(arg => this.evaluate(arg));
+                
+                // Check if it's a native function
+                if (func.body.type === 'NativeFunction') {
+                    return func.body.execute(this, evaluatedArgs);
+                }
+                
+                // User-defined function
+                // Create new environment for function execution
+                let funcEnv = new Environment(this.environment);
+                // Bind parameters
+                for (let i = 0; i < func.params.length; i++) {
+                    let param = func.params[i];
+                    let argValue;
+                    if (i < evaluatedArgs.length) {
+                        // Argument provided
+                        argValue = evaluatedArgs[i];
+                    } else if (param.defaultValue !== null) {
+                        // Use default value
+                        argValue = this.evaluate(param.defaultValue);
+                    } else {
+                        throw new Error(`Missing argument for parameter '${param.name}' in function '${expr.name}'.`);
+                    }
+                    funcEnv.define(param.name, argValue);
+                }
+                // Execute function body
+                let previous = this.environment;
+                this.environment = funcEnv;
+                try {
+                    this.executeBlock(func.body.body, funcEnv);
+                    // If no return statement, return null
+                    return null;
+                } catch (e) {
+                    if (e instanceof ReturnException) {
+                        // Return the values (as array if multiple, single value otherwise)
+                        if (e.values.length > 1) {
+                            return e.values;
+                        } else {
+                            return e.values[0];
+                        }
+                    }
+                    throw e;
+                } finally {
+                    this.environment = previous;
+                }
             case 'Assignment':
                 let value = this.evaluate(expr.value);
                 this.environment.assign(expr.name, value);
@@ -139,10 +315,17 @@ class Interpreter {
                     case '-': return left - right;
                     case '*': return left * right;
                     case '/': return left / right;
+                    case '%': return left % right;
                     case '>': return left > right;
                     case '<': return left < right;
                     case '==': return left === right;
                     // Add others...
+                }
+                break;
+            case 'Unary':
+                let operand = this.evaluate(expr.right);
+                if (expr.operator === '-') {
+                    return -operand;
                 }
                 break;
             // Add other expression types...

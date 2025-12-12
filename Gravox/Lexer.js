@@ -129,6 +129,9 @@ class Lexer {
         case "*":
           this.tokens.push({ type: "MULTIPLY", value: "*" });
           break;
+        case "%":
+          this.tokens.push({ type: "MODULO", value: "%" });
+          break;
         case "/": // Check for comments
           if (this.peek() === "/") {
             while (this.char !== null && this.char !== "\n") this.advance();
@@ -158,6 +161,7 @@ class Lexer {
       string: "TYPE",
       bool: "TYPE",
       any: "TYPE",
+      action: "KEYWORD",
       if: "KEYWORD",
       else: "KEYWORD",
       while: "KEYWORD",
@@ -166,6 +170,10 @@ class Lexer {
       range: "KEYWORD",
       return: "KEYWORD",
       show: "KEYWORD",
+      use: "KEYWORD",
+      as: "KEYWORD",
+      import: "KEYWORD",
+      from: "KEYWORD",
       true: "BOOLEAN",
       false: "BOOLEAN",
     };

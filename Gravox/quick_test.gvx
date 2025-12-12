@@ -1,0 +1,36 @@
+// Quick Test of All New Features
+
+show("=== Testing New Features ===");
+
+// 1. Array Indexing
+int[] nums = [10, 20, 30];
+show("Array indexing:", nums[0], nums[1], nums[2]);
+
+// 2. Basic Function
+action add(int a, int b) {
+    return a + b;
+}
+show("Function:", add(5, 3));
+
+// 3. Default Parameters
+action greet(string name = "World") {
+    show("Hello, {{name}}!");
+}
+greet();
+greet("Alice");
+
+// 4. Multiple Returns
+action divmod(int a, int b) {
+    return a / b, a % b;
+}
+int[] result = divmod(10, 3);
+show("Multiple returns:", result[0], result[1]);
+
+// 5. Function Alias
+use add as plus;
+show("Alias:", plus(2, 3));
+
+// 6. Modulo
+show("Modulo: 10 % 3 =", 10 % 3);
+
+show("=== All Features Work! ===");

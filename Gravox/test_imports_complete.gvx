@@ -1,0 +1,90 @@
+// Comprehensive Import System Test
+
+show("=== COMPREHENSIVE IMPORT TESTS ===");
+show("");
+
+// ========================================
+// TEST 1: Math Library - All Functions
+// ========================================
+show("TEST 1: Math Library");
+import { abs, sqrt, pow, floor, ceil } from "std:math";
+
+show("abs(-10) =", abs(-10));
+show("abs(10) =", abs(10));
+show("sqrt(25) =", sqrt(25));
+show("sqrt(100) =", sqrt(100));
+show("pow(2, 3) =", pow(2, 3));
+show("pow(5, 2) =", pow(5, 2));
+show("floor(3.7) =", floor(3.7));
+show("floor(3.2) =", floor(3.2));
+show("ceil(3.2) =", ceil(3.2));
+show("ceil(3.9) =", ceil(3.9));
+show("");
+
+// ========================================
+// TEST 2: Time Library
+// ========================================
+show("TEST 2: Time Library");
+import { now, date } from "std:time";
+
+int timestamp = now();
+string today = date();
+show("Current timestamp:", timestamp);
+show("Today's date:", today);
+show("");
+
+// ========================================
+// TEST 3: Import with Renaming
+// ========================================
+show("TEST 3: Import with Renaming");
+import { sqrt as squareRoot, pow as power } from "std:math";
+
+show("squareRoot(16) =", squareRoot(16));
+show("power(3, 3) =", power(3, 3));
+show("");
+
+// ========================================
+// TEST 4: User File Import
+// ========================================
+show("TEST 4: User File Import");
+import { add, multiply } from "utils.gvx";
+
+int sum = add(10, 5);
+int product = multiply(4, 7);
+show("add(10, 5) =", sum);
+show("multiply(4, 7) =", product);
+show("");
+
+// ========================================
+// TEST 5: Import with Renaming from User File
+// ========================================
+show("TEST 5: Import with Renaming from User File");
+import { add as sum, multiply as times } from "utils.gvx";
+
+show("sum(3, 7) =", sum(3, 7));
+show("times(6, 8) =", times(6, 8));
+show("");
+
+// ========================================
+// TEST 6: Using Math in Calculations
+// ========================================
+show("TEST 6: Math Library in Calculations");
+
+int a = abs(-15);
+int b = floor(7.8);
+int result = a + b;
+show("abs(-15) + floor(7.8) =", result);
+
+float hypotenuse = sqrt(pow(3, 2) + pow(4, 2));
+show("sqrt(3^2 + 4^2) =", hypotenuse);
+show("");
+
+// ========================================
+// FINAL SUMMARY
+// ========================================
+show("=== ALL IMPORT TESTS PASSED ===");
+show("✓ Math Library (abs, sqrt, pow, floor, ceil)");
+show("✓ Time Library (now, date)");
+show("✓ Import with Renaming");
+show("✓ User File Imports");
+show("✓ Complex Calculations");

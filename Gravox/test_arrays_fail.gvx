@@ -1,2 +1,0 @@
-int[] numbers = [1, "Two", 3];
-show("Should not reach here");

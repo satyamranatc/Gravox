@@ -58,7 +58,8 @@
   "pkg": {
     "assets": [
       "assets/**/*",
-      "syntaxes/**/*"
+      "syntaxes/**/*",
+      "stdlib/**/*"
     ],
     "outputPath": "dist",
     "targets": [
